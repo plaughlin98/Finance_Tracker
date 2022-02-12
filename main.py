@@ -1,7 +1,10 @@
+from datetime import date
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import sqlite3
+import PROMPT_STRINGS as prmpt
+from datetime import date
 from transactions import Transaction
 from dateutil import parser
 from matplotlib import style
@@ -18,43 +21,58 @@ inc2 = Transaction("2022-02-12", 88796, "Books", "Trans1", "incomes")
 # INSERT ':memory:' for testing
 
 conn = sqlite3.connect(':memory:')
-
 c = conn.cursor()
 # CREATE TABLES
-# EXPENSES
-c.execute(""" CREATE TABLE IF NOT EXISTS expenses (
-            date text,
-            amount integer,
-            category text,
-            trans_id text,
-            trans_type text
-            )""")
 
-# INCOME
-c.execute(""" CREATE TABLE IF NOT EXISTS incomes (
-            date text,
-            amount integer,
-            category text,
-            trans_id text,
-            trans_type text
-            )""")
+#USERS
+c.execute("""CREATE TABLE IF NOT EXISTS users (
+        user text,
+        table_name text
+        )""")
+
+# EXPENSES
+def create_user_trans_tbl(user):
+    c.execute(""" CREATE TABLE IF NOT EXISTS {}_transaction (
+                date text,
+                amount integer,
+                category text,
+                trans_id text,
+                trans_type text
+                )""".format(user))
+
+def get_users():
+    c.execute("SELECT * FROM users")
+    return c.fetchone()
+
+def get_next_id(user):
+    pass
+
+def get_new_trans_info(user):
+    print("Please enter in your transaction")
+    trans_type = input("Is it an expense or income? ")
+    date = date.today().strftime("%d-%m-%Y")
+    amount = input("How much was the transaction")
+    category = input("Please state the category")
+    trans_id = get_next_id(user)
+
+    return Transaction(date, amount, category, trans_id, trans_type)
 
 def insert_trans(trans, table):
     """trans -> Transaction Class Instance
     """
     with conn:
-        c.execute("INSERT INTO expenses VALUES (:date, :amount, :category, :trans_id, :trans_type)",
+        c.execute("INSERT INTO {} VALUES (:date, :amount, :category, :trans_id, :trans_type)".format(table),
         {'date': trans.date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
         
         conn.commit()
 
 ## TO-DO: REFACTOR CODE INTO LESS FUNCTIONS
 
-# def update_trans(trans, item, value)
+# def update_trans(table, trans, item, value)
 #   pass
 
-def get_range():
-    pass
+# def get_range():
+#     pass
 def update_amount(trans, amount, table):
     with conn:
         c.execute("""UPDATE :table SET amount = :amount
@@ -96,6 +114,7 @@ def get_trans_by_id(trans_id, table):
     c.execute("SELECT * FROM :table WHERE trans_id = :trans_id", {'table': table, 'trans_id': trans_id})
     return c.fetchall()
 
+
 def get_trans_by_table(table):
     c.execute("SELECT * FROM :table WHERE table = :table", {'table': table})
     return c.fetchall()
@@ -118,15 +137,32 @@ def graph_data(table):
 
 
 def main_loop():
-    pass
+    print("Hello, Welcome")
+    user = input("Please Enter your username: ")
+    user_list = get_users()
+    print(user_list)
 
-insert_trans(exp1, "expenses")
-insert_trans(exp1, "expenses")
-insert_trans(inc1, "income")
-insert_trans(inc2, "income")
+    if not user_list or user not in user_list:
+        #Make Input Prompt later  
+        print("Looks like you don't have an account, would you like to create one?")
+        create_user_trans_tbl(user)
+    print("Hello {}".format(user))
 
-graph_data("expenses")
+    new_trans = get_new_trans_info(user)
 
+    
+
+
+        
+        
+
+# insert_trans(exp1, "expenses")
+# insert_trans(exp1, "expenses")
+# insert_trans(inc1, "income")
+# insert_trans(inc2, "income")
+
+# graph_data("expenses")
+main_loop()
 #Commits Transaction 
 conn.commit()
 conn.close()

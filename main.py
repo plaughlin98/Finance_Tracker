@@ -1,3 +1,5 @@
+import matplotlib as plt
+import pandas as pd
 import sqlite3
 from transactions import Transaction
 
@@ -9,24 +11,24 @@ c = conn.cursor()
 
 # CREATE TABLES
 # EXPENSES
-c.execute(""" CREATE TABLE [IF NOT EXISTS] expenses (
+c.execute(""" CREATE TABLE IF NOT EXISTS expenses (
             date text,
             amount integer,
-            desc text,
+            category text,
             trans_id text
             )""")
 
 # INCOME
-c.execute(""" CREATE TABLE [IF NOT EXISTS] income (
+c.execute(""" CREATE TABLE IF NOT EXISTS income (
             date text,
             amount integer,
-            desc text,
+            category text,
             trans_id text
             )""")
 
 def insert_trans(trans, table):
     with conn:
-        c.execute("INSERT INTO :table VALUES (:date, :amount, :desc)", {'date': trans.date, 'amount': trans.amount, 'desc': trans.desc})
+        c.execute("INSERT INTO :table VALUES (:date, :amount, :category)", {'table': table, 'date': trans.date, 'amount': trans.amount, 'category': trans.category})
 
 ## TO-DO: REFACTOR CODE INTO LESS FUNCTIONS
 def update_amount(trans, amount, table):
@@ -41,11 +43,11 @@ def update_date(trans, date, table):
                     WHERE trans_id = :trans_id""",
                     {'table': table, 'date': date, 'trans_id': trans.trans_id})
 
-def update_desc(trans, desc, table):
+def update_category(trans, category, table):
     with conn:
-        c.execute(""" UPDATE :table SET desc = :desc
+        c.execute(""" UPDATE :table SET category = :category
                     WHERE trans_id = :trans_id""",
-                    {'table': table, 'desc': desc, 'trans_id': trans.trans_id})
+                    {'table': table, 'category': category, 'trans_id': trans.trans_id})
 
 def remove_trans(trans, table):
     with conn:

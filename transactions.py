@@ -7,4 +7,4 @@ class Transaction:
         self.trans_type = trans_type
 
     def __repr__(self):
-        return "Transaction('{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(self.date, self.amount, self.category, self.trans_id, self.trans_type)
+        return "Transaction('{}', '{}', '{}', '{}', '{}', '{}')".format(self.date, self.amount, self.category, self.trans_id, self.trans_type)

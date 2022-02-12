@@ -68,36 +68,37 @@ def insert_trans(trans, table):
 
 ## TO-DO: REFACTOR CODE INTO LESS FUNCTIONS
 
-# def update_trans(table, trans, item, value)
-#   pass
-
-# def get_range():
-#     pass
-def update_amount(trans, amount, table):
+def update_trans(table, trans_id, item, value):
     with conn:
-        c.execute("""UPDATE :table SET amount = :amount
-                    WHERE trans_id = :trans_id""",
-                    {'table': table, 'trans_id': trans.trans_id, 'amount': amount})
+        c.execute(""" UPDATE {} SET :item = :value
+                    WHERE trans_id = :trans_id""".format(table),
+                    {'trans_id': trans_id, 'item': item, 'value': value})
 
-def update_date(trans, trans_date, table):
+# def update_amount(trans, amount, table):
+#     with conn:
+#         c.execute("""UPDATE :table SET amount = :amount
+#                     WHERE trans_id = :trans_id""",
+#                     {'table': table, 'trans_id': trans.trans_id, 'amount': amount})
+
+# def update_date(trans, trans_date, table):
+#     with conn:
+#         c.execute("""UPDATE :table SET trans_date = :trans_date
+#                     WHERE trans_id = :trans_id""",
+#                     {'table': table, 'trans_date': trans_date, 'trans_id': trans.trans_id})
+
+# def update_category(trans, category, table):
+#     with conn:
+#         c.execute(""" UPDATE :table SET category = :category
+#                     WHERE trans_id = :trans_id""",
+#                     {'table': table, 'category': category, 'trans_id': trans.trans_id})
+
+def remove_trans(trans_id, table):
     with conn:
-        c.execute("""UPDATE :table SET trans_date = :trans_date
-                    WHERE trans_id = :trans_id""",
-                    {'table': table, 'trans_date': trans_date, 'trans_id': trans.trans_id})
+        c.execute(""" DELETE from {} WHERE trans_id = :trans_id""".format(table),
+                    {'trans_id': trans_id})
 
-def update_category(trans, category, table):
-    with conn:
-        c.execute(""" UPDATE :table SET category = :category
-                    WHERE trans_id = :trans_id""",
-                    {'table': table, 'category': category, 'trans_id': trans.trans_id})
-
-def remove_trans(trans, table):
-    with conn:
-        c.execute(""" DELETE from :table WHERE trans_id = :trans_id""",
-                    {'table': table, 'trans_id': trans.trans_id})
-
-def get_trans_by_date(date, table):
-    c.execute("SELECT * FROM :table WHERE trans_date = :trans_date", {'table': table, 'trans_date': date})
+def get_trans_by_date(trans_date, table):
+    c.execute("SELECT * FROM {} WHERE trans_date = :trans_date".format(table), {'trans_date': trans_date})
     return c.fetchall()
 
 def get_trans_overunder_value(value, over_under ,table):
@@ -106,12 +107,12 @@ def get_trans_overunder_value(value, over_under ,table):
         over_under = ">"
     else:
         over_under = "<"
-    c.execute("SELECT * FROM :table WHERE amount :over_under :amount",
-            {'table': table, 'over_under': over_under, 'amount': value})
+    c.execute("SELECT * FROM {} WHERE amount :over_under :amount".format(table),
+            {'over_under': over_under, 'amount': value})
     return c.fetchall()
 
 def get_trans_by_id(trans_id, table):
-    c.execute("SELECT * FROM :table WHERE trans_id = :trans_id", {'table': table, 'trans_id': trans_id})
+    c.execute("SELECT * FROM {} WHERE trans_id = :trans_id".format(table), {'trans_id': trans_id})
     return c.fetchall()
 
 
@@ -119,8 +120,9 @@ def get_trans_by_table(table):
     c.execute("SELECT * FROM {}".format(table))
     return c.fetchall()
 
+# TO-DO: FIX GRAPH FORMATTING AND ALLOW USER TO DYNAMICALLY CHOOSE WHAT TO GRAPH
 def graph_data(table):
-    c.execute('SELECT trans_date, amount FROM {}'.format(table))
+    c.execute('SELECT trans_date, amount FROM {} ORDER BY trans_date ASC'.format(table))
     data = c.fetchall()
     for row in data:
         print(row)
@@ -129,10 +131,13 @@ def graph_data(table):
     amounts = []
 
     for row in data:
-        dates.append(parser.parse(row[0]))
+        dates.append(row[0])
         amounts.append(row[1])
+    
 
-    plt.plot_date(dates,amounts,'-')
+    plt.plot(dates,amounts,'-')
+    plt.xlabel("Date")
+    plt.ylabel("Transaction Amount")
     plt.show()
 
 
@@ -149,6 +154,7 @@ def main_loop():
     user_table = user + "_transactions"
     print("Hello {}".format(user))
 
+    # DUMMY DATA // DELETE
     # insert_trans(get_new_trans_info(user), user_table)
     insert_trans(exp1, user_table)
     insert_trans(exp2, user_table)
@@ -163,9 +169,9 @@ def main_loop():
 # insert_trans(inc1, "income")
 # insert_trans(inc2, "income")
 
-# graph_data("expenses")
+
 main_loop()
-#Commits Transaction 
+
 conn.commit()
 conn.close()
 

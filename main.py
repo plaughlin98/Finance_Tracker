@@ -11,11 +11,11 @@ from matplotlib import style
 style.use('fivethirtyeight')
 
 ### TEMP DATA
-exp1 = Transaction("2022-04-12", 54300, "Books", "Trans1", "expense")
+exp1 = Transaction("2022-04-12", 530, "Books", "Trans1", "expense")
 exp2 = Transaction("2022-10-12", 621, "Books", "Trans1", "expense")
 
 inc1 = Transaction("2022-08-12", 44, "Books", "Trans1", "income")
-inc2 = Transaction("2022-02-12", 88796, "Books", "Trans1", "income")
+inc2 = Transaction("2022-02-12", 896, "Books", "Trans1", "income")
 
 # INSERT'finances.db' AFTER TESTING
 # INSERT ':memory:' for testing
@@ -45,7 +45,16 @@ def get_users():
     return c.fetchone()
 
 def get_next_id(user):
-    pass
+    table = user + "_transactions"
+    c.execute("""SELECT * FROM {}
+                 WHERE trans_id = (SELECT MAX(trans_id)  FROM {})
+                 """.format(table, table))
+    if c.fetchone() == None:
+        return "{:04d}".format(0)
+    else:
+        trans_id = c.fetchone
+        trans_id = int(trans_id) + 1
+        return "{:04d}".format(trans_id)
 
 def get_new_trans_info(user):
     print("Please enter in your transaction")
@@ -155,11 +164,11 @@ def main_loop():
     print("Hello {}".format(user))
 
     # DUMMY DATA // DELETE
-    # insert_trans(get_new_trans_info(user), user_table)
-    insert_trans(exp1, user_table)
-    insert_trans(exp2, user_table)
-    insert_trans(inc1, user_table)
-    insert_trans(inc2, user_table)
+    insert_trans(get_new_trans_info(user), user_table)
+    # insert_trans(exp1, user_table)
+    # insert_trans(exp2, user_table)
+    # insert_trans(inc1, user_table)
+    # insert_trans(inc2, user_table)
     print(get_trans_by_table(user_table))
     graph_data(user_table)
 

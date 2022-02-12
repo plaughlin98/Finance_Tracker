@@ -72,3 +72,4 @@ def get_trans_by_id(trans_id, table):
 
 def get_trans_by_table(table):
     c.connect("SELECT * FROM :table WHERE table = :table", {'table': table})
+    return c.fetchall()

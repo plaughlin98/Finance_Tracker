@@ -15,7 +15,9 @@ inc1 = Transaction("2022-08-12", 44, "Books", "Trans1", "incomes")
 inc2 = Transaction("2022-02-12", 88796, "Books", "Trans1", "incomes")
 
 # INSERT'finances.db' AFTER TESTING
-conn = sqlite3.connect('finances.db')
+# INSERT ':memory:' for testing
+
+conn = sqlite3.connect(':memory:')
 
 c = conn.cursor()
 # CREATE TABLES
@@ -41,11 +43,18 @@ def insert_trans(trans, table):
     """trans -> Transaction Class Instance
     """
     with conn:
-        c.execute("INSERT INTO expenses VALUES (:date, :amount, :category, :trans_id, :trans_type)", {'date': trans.date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
+        c.execute("INSERT INTO expenses VALUES (:date, :amount, :category, :trans_id, :trans_type)",
+        {'date': trans.date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
         
         conn.commit()
 
 ## TO-DO: REFACTOR CODE INTO LESS FUNCTIONS
+
+# def update_trans(trans, item, value)
+#   pass
+
+def get_range():
+    pass
 def update_amount(trans, amount, table):
     with conn:
         c.execute("""UPDATE :table SET amount = :amount
@@ -73,14 +82,14 @@ def get_trans_by_date(date, table):
     c.execute("SELECT * FROM :table WHERE date = :date", {'table': table, 'date': date})
     return c.fetchall()
 
-def get_trans_overunder_amount(amount,over_under ,table):
+def get_trans_overunder_value(value, over_under ,table):
     over_under = over_under.lower()
     if over_under == "over":
         over_under = ">"
     else:
         over_under = "<"
     c.execute("SELECT * FROM :table WHERE amount :over_under :amount",
-            {'table': table, 'over_under': over_under, 'amount': amount})
+            {'table': table, 'over_under': over_under, 'amount': value})
     return c.fetchall()
 
 def get_trans_by_id(trans_id, table):
@@ -106,6 +115,10 @@ def graph_data(table):
 
     plt.plot_date(dates,amounts,'-')
     plt.show()
+
+
+def main_loop():
+    pass
 
 insert_trans(exp1, "expenses")
 insert_trans(exp1, "expenses")

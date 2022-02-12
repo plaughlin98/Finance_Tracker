@@ -11,11 +11,11 @@ from matplotlib import style
 style.use('fivethirtyeight')
 
 ### TEMP DATA
-exp1 = Transaction("2022-04-12", 54300, "Books", "Trans1", "expenses")
-exp2 = Transaction("2022-10-12", 621, "Books", "Trans1", "expenses")
+exp1 = Transaction("2022-04-12", 54300, "Books", "Trans1", "expense")
+exp2 = Transaction("2022-10-12", 621, "Books", "Trans1", "expense")
 
-inc1 = Transaction("2022-08-12", 44, "Books", "Trans1", "incomes")
-inc2 = Transaction("2022-02-12", 88796, "Books", "Trans1", "incomes")
+inc1 = Transaction("2022-08-12", 44, "Books", "Trans1", "income")
+inc2 = Transaction("2022-02-12", 88796, "Books", "Trans1", "income")
 
 # INSERT'finances.db' AFTER TESTING
 # INSERT ':memory:' for testing
@@ -32,8 +32,8 @@ c.execute("""CREATE TABLE IF NOT EXISTS users (
 
 # EXPENSES
 def create_user_trans_tbl(user):
-    c.execute(""" CREATE TABLE IF NOT EXISTS {}_transaction (
-                date text,
+    c.execute(""" CREATE TABLE IF NOT EXISTS {}_transactions (
+                trans_date text,
                 amount integer,
                 category text,
                 trans_id text,
@@ -50,19 +50,19 @@ def get_next_id(user):
 def get_new_trans_info(user):
     print("Please enter in your transaction")
     trans_type = input("Is it an expense or income? ")
-    date = date.today().strftime("%d-%m-%Y")
+    trans_date = date.today().strftime("%Y-%d-%m")
     amount = input("How much was the transaction")
     category = input("Please state the category")
     trans_id = get_next_id(user)
 
-    return Transaction(date, amount, category, trans_id, trans_type)
+    return Transaction(trans_date, amount, category, trans_id, trans_type)
 
 def insert_trans(trans, table):
     """trans -> Transaction Class Instance
     """
     with conn:
-        c.execute("INSERT INTO {} VALUES (:date, :amount, :category, :trans_id, :trans_type)".format(table),
-        {'date': trans.date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
+        c.execute("INSERT INTO {} VALUES (:trans_date, :amount, :category, :trans_id, :trans_type)".format(table),
+        {'trans_date': trans.trans_date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
         
         conn.commit()
 
@@ -79,11 +79,11 @@ def update_amount(trans, amount, table):
                     WHERE trans_id = :trans_id""",
                     {'table': table, 'trans_id': trans.trans_id, 'amount': amount})
 
-def update_date(trans, date, table):
+def update_date(trans, trans_date, table):
     with conn:
-        c.execute("""UPDATE :table SET date = :date
+        c.execute("""UPDATE :table SET trans_date = :trans_date
                     WHERE trans_id = :trans_id""",
-                    {'table': table, 'date': date, 'trans_id': trans.trans_id})
+                    {'table': table, 'trans_date': trans_date, 'trans_id': trans.trans_id})
 
 def update_category(trans, category, table):
     with conn:
@@ -97,7 +97,7 @@ def remove_trans(trans, table):
                     {'table': table, 'trans_id': trans.trans_id})
 
 def get_trans_by_date(date, table):
-    c.execute("SELECT * FROM :table WHERE date = :date", {'table': table, 'date': date})
+    c.execute("SELECT * FROM :table WHERE trans_date = :trans_date", {'table': table, 'trans_date': date})
     return c.fetchall()
 
 def get_trans_overunder_value(value, over_under ,table):
@@ -116,11 +116,11 @@ def get_trans_by_id(trans_id, table):
 
 
 def get_trans_by_table(table):
-    c.execute("SELECT * FROM :table WHERE table = :table", {'table': table})
+    c.execute("SELECT * FROM {}".format(table))
     return c.fetchall()
 
 def graph_data(table):
-    c.execute('SELECT date, amount FROM {}'.format(table))
+    c.execute('SELECT trans_date, amount FROM {}'.format(table))
     data = c.fetchall()
     for row in data:
         print(row)
@@ -146,15 +146,17 @@ def main_loop():
         #Make Input Prompt later  
         print("Looks like you don't have an account, would you like to create one?")
         create_user_trans_tbl(user)
+    user_table = user + "_transactions"
     print("Hello {}".format(user))
 
-    new_trans = get_new_trans_info(user)
+    # insert_trans(get_new_trans_info(user), user_table)
+    insert_trans(exp1, user_table)
+    insert_trans(exp2, user_table)
+    insert_trans(inc1, user_table)
+    insert_trans(inc2, user_table)
+    print(get_trans_by_table(user_table))
+    graph_data(user_table)
 
-    
-
-
-        
-        
 
 # insert_trans(exp1, "expenses")
 # insert_trans(exp1, "expenses")

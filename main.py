@@ -1,4 +1,5 @@
 import sqlite3
+from transactions import Transaction
 
 # INSERT'finances.db' AFTER TESTING
 conn = sqlite3.connect(':memory:')

@@ -7,8 +7,6 @@ from transactions import Transaction
 conn = sqlite3.connect('finances.db')
 
 c = conn.cursor()
-
-
 # CREATE TABLES
 # EXPENSES
 c.execute(""" CREATE TABLE IF NOT EXISTS expenses (
@@ -75,3 +73,9 @@ def get_trans_by_id(trans_id, table):
 def get_trans_by_table(table):
     c.execute("SELECT * FROM :table WHERE table = :table", {'table': table})
     return c.fetchall()
+
+#Commits Transaction 
+conn.commit()
+
+#Close Connection
+conn.close()

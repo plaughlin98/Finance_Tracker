@@ -35,7 +35,9 @@ def update_amount(trans, amount, table):
 
 def update_date(trans, date, table):
     with conn:
-        c.connect()
+        c.connect("""UPDATE :table SET date = :date
+                    WHERE trans_id = :trans_id""",
+                    {'table': table, 'date': date, 'trans_id': trans.trans_id})
 
 def update_desc(trans, desc, table):
     pass

@@ -27,6 +27,7 @@ def insert_trans(trans, table):
     with conn:
         c.execute("INSERT INTO :table VALUES (:date, :amount, :desc)", {'date': trans.date, 'amount': trans.amount, 'desc': trans.desc})
 
+## TO-DO: REFACTOR CODE INTO LESS FUNCTIONS
 def update_amount(trans, amount, table):
     with conn:
         c.execute("""UPDATE :table SET amount = :amount
@@ -40,10 +41,33 @@ def update_date(trans, date, table):
                     {'table': table, 'date': date, 'trans_id': trans.trans_id})
 
 def update_desc(trans, desc, table):
-    pass
+    with conn:
+        c.connect(""" UPDATE :table SET desc = :desc
+                    WHERE trans_id = :trans_id""",
+                    {'table': table, 'desc': desc, 'trans_id': trans.trans_id})
 
-def remove_trans(emp, table):
-    pass
+def remove_trans(trans, table):
+    with conn:
+        c.connect(""" DELETE from :table WHERE trans_id = :trans_id""",
+                    {'table': table, 'trans_id': trans.trans_id})
 
 def get_trans_by_date(date, table):
-    pass
+    c.connect("SELECT * FROM :table WHERE date = :date", {'table': table, 'date': date})
+    return c.fetchall()
+
+def get_trans_overunder_amount(amount,over_under ,table):
+    over_under = over_under.lower()
+    if over_under == "over":
+        over_under = ">"
+    else:
+        over_under = "<"
+    c.connect("SELECT * FROM :table WHERE amount :over_under :amount",
+            {'table': table, 'over_under': over_under, 'amount': amount})
+    return c.fetchall()
+
+def get_trans_by_id(trans_id, table):
+    c.connect("SELECT * FROM :table WHERE trans_id = :trans_id", {'table': table, 'trans_id': trans_id})
+    return c.fetchall()
+
+def get_trans_by_table(table):
+    c.connect("SELECT * FROM :table WHERE table = :table", {'table': table})

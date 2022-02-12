@@ -2,7 +2,7 @@ import sqlite3
 from transactions import Transaction
 
 # INSERT'finances.db' AFTER TESTING
-conn = sqlite3.connect(':memory:')
+conn = sqlite3.connect('finances.db')
 
 c = conn.cursor()
 

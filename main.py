@@ -22,7 +22,6 @@ inc2 = Transaction("2022-02-12", 896, "Books", "Trans1", "income")
 conn = sqlite3.connect(':memory:')
 c = conn.cursor()
 
-
 #**************************************************************************************
 #***************************** SETUP & CONFIG FUNCTIONS *******************************
 #**************************************************************************************
@@ -96,8 +95,7 @@ def insert_trans(trans, table):
     """
     with conn:
         c.execute("INSERT INTO {} VALUES (:trans_date, :amount, :category, :trans_id, :trans_type)".format(table),
-        {'trans_date': trans.trans_date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
-        
+                {'trans_date': trans.trans_date, 'amount': trans.amount, 'category': trans.category, 'trans_id': trans.trans_id, 'trans_type': trans.trans_type})
         conn.commit()
 
 def update_trans(table, trans_id, item, value):
@@ -105,7 +103,6 @@ def update_trans(table, trans_id, item, value):
         c.execute(""" UPDATE {} SET {} = :value
                     WHERE trans_id = :trans_id""".format(table, item),
                     {'trans_id': trans_id, 'value': value})
-
         conn.commit()
 
 def remove_trans(trans_id, table):
@@ -119,7 +116,7 @@ def remove_trans(trans_id, table):
 #**************************************************************************************
 
 #**************************************************************************************
-#***************************** SELECT QUERIES *****************************************
+#******************************* READ QUERIES *****************************************
 #**************************************************************************************
 
 def get_account_balance(table):
@@ -131,13 +128,12 @@ def get_account_balance(table):
         total_expenses += expense
 
     c.execute("SELECT amount FROM {} WHERE trans_type = income".format(table))
-    incomes = c.fetchall()
 
+    incomes = c.fetchall()
     total_incomes = 0
     for income in incomes:
         total_incomes += income
-
-    print(total_incomes - total_expenses)
+    print("Total Income: ${} Total Expenses: ${} Total Balance: ${}".format(total_incomes, total_expenses, (total_incomes - total_expenses)))
 
 def get_spec_trans(item, value, table):
     c.execute("SELECT COUNT(*) FROM {}".format(table))
@@ -187,7 +183,7 @@ def get_all_trans(table):
     display(display_get, count)
 
 #**************************************************************************************
-#***************************** SELECT QUERIES END *************************************
+#******************************* READ QUERIES END *************************************
 #**************************************************************************************
 
 #**************************************************************************************

@@ -218,9 +218,7 @@ def graph_data(table):
 #******************************* GRAPHING END *****************************************
 #**************************************************************************************
 
-
 # TO-DO: CREATE INPUT LOOP TO DYNAMICALLY GO THROUGH ALL FUNCTIONS BASED ON USER INPUT
-
 def main_loop():
     #print("Hello, Welcome")
     user = input("Please Enter your username: ")
@@ -237,10 +235,7 @@ def main_loop():
     get_all_trans(user_table)
     get_spec_trans('category', 'Books', user_table)
 
+if __name__ == "__main__":
+    main_loop()
 
-main_loop()
-
-conn.commit()
 conn.close()
-
-
